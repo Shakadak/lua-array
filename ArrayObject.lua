@@ -1,7 +1,7 @@
 local Array = {}
 
 local function show(self)
-    ret = "["
+    local ret = "["
     for n, x in ipairs(self.xs) do
         if n ~= 1 then ret = ret .. ", " end
         if type(x) == "nil"
@@ -33,7 +33,7 @@ local function show(self)
 end
 
 local function dot(self, ys)
-    zs = {}
+    local zs = {}
     for _, x in ipairs(self.xs) do
         table.insert(zs, x)
     end
@@ -44,7 +44,7 @@ local function dot(self, ys)
 end
 
 local function map(self, f)
-	ys = {}
+	local ys = {}
 	for _, x in ipairs(self.xs) do
 		table.insert(ys, f(x))
 	end
@@ -52,7 +52,7 @@ local function map(self, f)
 end
 
 local function apply(self, xs)
-	ys = {}
+	local ys = {}
 	for _, f in ipairs(self.xs) do
 		for _, x in ipairs(xs.xs) do
 			table.insert(ys, f(x))
@@ -61,12 +61,36 @@ local function apply(self, xs)
 	return Array.fromIvTable(ys)
 end
 
+local function bind(self, f)
+    local ys = {}
+    for _, x in ipairs(self.xs) do
+        for _, y in ipairs(f(x).xs) do
+            table.insert(ys)
+        end
+    end
+    return new(ys)
+end
+
+local function join(xss)
+    local ys = {}
+    for _, xs in ipairs(xss.xs) do
+        for _, x in ipairs(xs.xs) do
+            table.insert(ys, x)
+        end
+    end
+    return new(ys)
+end
+
 local function new(xs)
     return {
         xs = xs,
         dot = dot,
+        append = dot,
 		map = map,
 		apply = apply,
+        bind = bind,
+        join = join,
+        concat = join,
         show = show,
     }
 end
