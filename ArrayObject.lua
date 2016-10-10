@@ -68,7 +68,7 @@ local function bind(self, f)
             table.insert(ys)
         end
     end
-    return new(ys)
+    return Array.fromIvTable(ys)
 end
 
 local function join(xss)
@@ -78,7 +78,7 @@ local function join(xss)
             table.insert(ys, x)
         end
     end
-    return new(ys)
+    return Array.fromIvTable(ys)
 end
 
 local function head(self)
@@ -94,7 +94,31 @@ local function tail(self)
     for n, x in ipairs(self.xs) do
         if n ~= 1 then table.insert(xs, x) end
     end
-    return new(xs)
+    return Array.fromIvTable(xs)
+end
+
+local function null(self)
+    return #self.xs == 0
+end
+
+local function length(self)
+    return #self.xs
+end
+
+local function reverse(self)
+    local xs = {}
+    for i = #self.xs, 0, -1 do
+        table.insert(xs, self.xs[i])
+    end
+    return Array.fromIvTable(xs)
+end
+
+local function filter(self, p)
+    local xs = {}
+    for _, x in ipairs(self.xs) do
+        if p(x) then table.insert(xs, x) end
+    end
+    return Array.fromIvTable(xs)
 end
 
 local function new(xs)
@@ -110,7 +134,11 @@ local function new(xs)
         show = show,
         head = head,
         last = last,
-        tail = tail
+        tail = tail,
+        null = null,
+        length = length,
+        reverse = reverse,
+        filter = filter
     }
 end
 

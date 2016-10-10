@@ -7,7 +7,7 @@ local function add(x) return function(y) return x + y end end
 
 local just = Array.pure("")
 local nothing = Array.Id
-local one = Array.pure(1)
+local one = Array.fromIvTable({1, 2})
 
 print(just:show())
 print(nothing:show())
@@ -28,3 +28,6 @@ local three = two:map(add(1))
 print(three:show())
 print(nothing:map(add(1)):show())
 print()
+
+print(Array.fromIvTable({1, 2, 3, 4}):reverse():show())
+print(three:filter(function(x) return x ~= 4 end):show())
