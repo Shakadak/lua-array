@@ -81,6 +81,22 @@ local function join(xss)
     return new(ys)
 end
 
+local function head(self)
+    return self.xs[1]
+end
+
+local function last(self)
+    return self.xs[#self.xs]
+end
+
+local function tail(self)
+    local xs = {}
+    for n, x in ipairs(self.xs) do
+        if n ~= 1 then table.insert(xs, x) end
+    end
+    return new(xs)
+end
+
 local function new(xs)
     return {
         xs = xs,
@@ -92,6 +108,9 @@ local function new(xs)
         join = join,
         concat = join,
         show = show,
+        head = head,
+        last = last,
+        tail = tail
     }
 end
 
