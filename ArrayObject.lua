@@ -121,6 +121,20 @@ local function filter(self, p)
     return Array.fromIvTable(xs)
 end
 
+local function partition(self, p)
+    local xs, ys = {}, {}
+    for _, x in self.xs do
+        if p(x)
+        then table.insert(xs, x)
+        else table.insert(ys, x)
+        end
+    end
+    return new(xs), new(ys)
+end
+
+local function foldl(self, f)
+end
+
 local function new(xs)
     return {
         xs = xs,
@@ -138,7 +152,8 @@ local function new(xs)
         null = null,
         length = length,
         reverse = reverse,
-        filter = filter
+        filter = filter,
+        partition = partition,
     }
 end
 
