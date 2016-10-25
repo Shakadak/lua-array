@@ -123,7 +123,7 @@ end
 
 local function partition(self, p)
     local xs, ys = {}, {}
-    for _, x in self.xs do
+    for _, x in ipairs(self.xs) do
         if p(x)
         then table.insert(xs, x)
         else table.insert(ys, x)
@@ -139,6 +139,22 @@ local function iter(self, f)
 end
 
 local function foldl(self, f)
+    return function(acc)
+        for _, x in ipairs(self.xs) do
+            acc = f(acc)(x)
+        end
+        return acc
+    end
+end
+
+local function foldr(self, f)
+    return function(acc)
+        local xs = self.xs
+        for i = #xs, 0, -1 do
+            acc = f(xs[i])(acc)
+        end
+        return acc
+    end
 end
 
 local function new(xs)

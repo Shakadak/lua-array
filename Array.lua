@@ -134,7 +134,7 @@ end
 local function partition(p)
     return function(xs)
         local ys, zs = {}, {}
-        for _, x in xs do
+        for _, x in ipairs(xs) do
             if p(x)
             then table.insert(ys, x)
             else table.insert(zs, x)
