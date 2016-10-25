@@ -132,6 +132,12 @@ local function partition(self, p)
     return new(xs), new(ys)
 end
 
+local function iter(self, f)
+	for _, x in ipairs(self.xs) do
+		f(x)
+	end
+end
+
 local function foldl(self, f)
 end
 
@@ -154,6 +160,7 @@ local function new(xs)
         reverse = reverse,
         filter = filter,
         partition = partition,
+		iter = iter,
     }
 end
 

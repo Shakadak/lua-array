@@ -35,7 +35,7 @@ end
 local function dot(xs)
     return function(ys)
         local zs = {}
-        for _, x in ipairs(self.xs) do
+        for _, x in ipairs(xs) do
             table.insert(zs, x)
         end
         for _, y in ipairs(ys) do
@@ -59,7 +59,7 @@ local function apply(fs)
     return function(xs)
 	    local ys = {}
 	    for _, f in ipairs(fs) do
-		    for _, x in ipairs(xs.xs) do
+		    for _, x in ipairs(xs) do
 			    table.insert(ys, f(x))
 		    end
 	    end
@@ -144,7 +144,26 @@ local function partition(p)
     end
 end
 
-local function foldl(self, f)
+local function foldl(f)
+    return function(acc)
+        return function(xs)
+            for _, x in ipairs(xs) do
+                acc = f(acc)(x)
+            end
+            return acc
+        end
+    end
+end
+
+local function foldr(f)
+    return function(acc)
+        return function(xs)
+            for i = #xs, 0, -1 do
+                acc = f(xs[i])(acc)
+            end
+            return acc
+        end
+    end
 end
 
 local function pure(x)
@@ -153,6 +172,14 @@ end
 
 local function empty()
 	return {}
+end
+
+local function iter(f)
+    return function(xs)
+        for _, x in ipairs(xs.xs) do
+            f(x)
+        end
+    end
 end
 
 return {
@@ -172,4 +199,5 @@ return {
     reverse = reverse,
     filter = filter,
     partition = partition,
+    iter = iter,
 }
