@@ -38,7 +38,7 @@ local function dot(self, ys)
         table.insert(zs, x)
     end
     for _, y in ipairs(ys.xs) do
-        table.insert(zs, x)
+        table.insert(zs, y)
     end
     return Array.fromIvTable(zs)
 end
@@ -65,7 +65,7 @@ local function bind(self, f)
     local ys = {}
     for _, x in ipairs(self.xs) do
         for _, y in ipairs(f(x).xs) do
-            table.insert(ys)
+            table.insert(ys, y)
         end
     end
     return Array.fromIvTable(ys)
