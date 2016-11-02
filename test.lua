@@ -1,4 +1,5 @@
 local Array = require "ArrayObject"
+local PA = require "Array"
 
 local function printPure(x)
     print(Array.pure(x):show())
@@ -33,3 +34,9 @@ print()
 
 print(Array.fromIvTable({1, 2, 3, 4}):reverse():show())
 print(three:filter(function(x) return x ~= 4 end):show())
+
+print("Pure Array")
+print("local powerset = filterM(function(x) return {true, false} end)")
+local powerset = PA.filterM(function(x) return {true, false} end)
+print("powerset({1, 2, 3})")
+print(PA.show(PA.map(PA.show)(powerset({1, 2, 3}))))

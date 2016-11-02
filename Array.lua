@@ -67,6 +67,31 @@ local function apply(fs)
     end
 end
 
+
+local function liftA(f)
+    return function(xs)
+        return apply(pure(f))(xs)
+    end
+end
+
+local function liftA2(f)
+    return function(xs)
+        return function(ys)
+            return apply(map(f)(xs))(ys)
+        end
+    end
+end
+
+local function liftA3(f)
+    return function(xs)
+        return function(ys)
+            return function(zs)
+                return apply(apply(map(f)(xs))(ys))(zs)
+            end
+        end
+    end
+end
+
 local function bind(xs)
     return function(f)
         local ys = {}
@@ -158,7 +183,7 @@ end
 local function foldr(f)
     return function(acc)
         return function(xs)
-            for i = #xs, 0, -1 do
+            for i = #xs, 1, -1 do
                 acc = f(xs[i])(acc)
             end
             return acc
@@ -182,6 +207,24 @@ local function iter(f)
     end
 end
 
+local function cons(x)
+    return dot(pure(x))
+end
+
+local function filterM(p)
+    return foldr(
+        function(x)
+            return liftA2(
+                function(flg)
+                    if flg
+                        then return cons(x)
+                        else return function(xs) return dot(xs)(empty()) end
+                    end
+                end)(p(x))
+        end)(pure({}))
+end
+
+
 return {
     dot = dot,
     append = dot,
@@ -199,5 +242,14 @@ return {
     reverse = reverse,
     filter = filter,
     partition = partition,
+	foldl = foldl,
+	foldr = foldr,
     iter = iter,
+    cons = cons,
+    liftA = liftA,
+    liftA2 = liftA2,
+    liftA3 = liftA3,
+    filterM = filterM,
+	pure = pure,
+	empty = empty,
 }
