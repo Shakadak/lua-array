@@ -18,7 +18,7 @@ local function show(self)
             then ret = ret .. "Thread"
         elseif type(x) == "table"
             then if type(x.show) == "function"
-                 then ret = ret .. "("..x:show()..")"
+                 then ret = ret .. x:show()
                  else ret = ret .. "Table"
             end
         elseif type(x) == "boolean"
@@ -40,7 +40,7 @@ local function dot(self, ys)
     for _, y in ipairs(ys.xs) do
         table.insert(zs, y)
     end
-    return Array.fromIvTable(zs)
+    return Array.new(zs)
 end
 
 local function map(self, f)
@@ -48,7 +48,7 @@ local function map(self, f)
 	for _, x in ipairs(self.xs) do
 		table.insert(ys, f(x))
 	end
-	return Array.fromIvTable(ys)
+	return Array.new(ys)
 end
 
 local function apply(self, xs)
@@ -58,7 +58,25 @@ local function apply(self, xs)
 			table.insert(ys, f(x))
 		end
 	end
-	return Array.fromIvTable(ys)
+	return Array.new(ys)
+end
+
+local function liftA(self, f)
+    return Array.pure(f):apply(self)
+end
+
+local function liftA2(self, f)
+    return function(ys)
+        return self:map(f):apply(ys)
+    end
+end
+
+local function liftA3(self, f)
+    return function(ys)
+        return function(zs)
+            return self:map(f):apply(ys):apply(zs)
+        end
+    end
 end
 
 local function bind(self, f)
@@ -68,7 +86,7 @@ local function bind(self, f)
             table.insert(ys, y)
         end
     end
-    return Array.fromIvTable(ys)
+    return Array.new(ys)
 end
 
 local function join(xss)
@@ -78,7 +96,7 @@ local function join(xss)
             table.insert(ys, x)
         end
     end
-    return Array.fromIvTable(ys)
+    return Array.new(ys)
 end
 
 local function head(self)
@@ -94,7 +112,7 @@ local function tail(self)
     for n, x in ipairs(self.xs) do
         if n ~= 1 then table.insert(xs, x) end
     end
-    return Array.fromIvTable(xs)
+    return Array.new(xs)
 end
 
 local function null(self)
@@ -110,7 +128,7 @@ local function reverse(self)
     for i = #self.xs, 0, -1 do
         table.insert(xs, self.xs[i])
     end
-    return Array.fromIvTable(xs)
+    return Array.new(xs)
 end
 
 local function filter(self, p)
@@ -118,7 +136,7 @@ local function filter(self, p)
     for _, x in ipairs(self.xs) do
         if p(x) then table.insert(xs, x) end
     end
-    return Array.fromIvTable(xs)
+    return Array.new(xs)
 end
 
 local function partition(self, p)
@@ -150,14 +168,25 @@ end
 local function foldr(self, f)
     return function(acc)
         local xs = self.xs
-        for i = #xs, 0, -1 do
+        for i = #xs, 1, -1 do
             acc = f(xs[i])(acc)
         end
         return acc
     end
 end
 
-local function new(xs)
+local function filterM(self, p)
+    return self:foldr(function(x) 
+        return p(x):liftA2(function(flg)
+            if flg
+                then return function(xs) return Array.pure(x):dot(xs) end
+                else return function(xs) return Array.Empty():dot(xs) end
+            end
+        end)
+    end)(Array.pure(Array.Empty()))
+end
+
+Array.new = function(xs)
     return {
         xs = xs,
         dot = dot,
@@ -177,23 +206,25 @@ local function new(xs)
         filter = filter,
         partition = partition,
 		iter = iter,
+        foldr = foldr,
+        foldl = foldl,
+        liftA = liftA,
+        liftA2 = liftA2,
+        liftA3 = liftA3,
+        filterM = filterM,
     }
 end
 
-Array.fromIvTable = function(xs)
-    return new(xs)
-end
-
 Array.pure = function(x)
-    return new({x})
+    return Array.new({x})
 end
 
 Array.singleton = Array.pure
 
-Array.empty = function()
-	return new({})
+Array.Empty = function()
+	return Array.new({})
 end
 
-Array.Id = new({})
+Array.Id = Array.new({})
 
 return Array
