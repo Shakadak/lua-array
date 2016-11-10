@@ -32,6 +32,15 @@ local function show(xs)
 	return ret
 end
 
+local function id(xs)
+    local ys = {}
+    for _, x in ipairs(xs) do
+        table.insert(ys, x)
+    end
+    return ys
+end
+    
+
 local function dot(xs)
     return function(ys)
         local zs = {}
@@ -226,6 +235,7 @@ end
 
 
 return {
+    id = id,
     dot = dot,
     append = dot,
     map = map,
